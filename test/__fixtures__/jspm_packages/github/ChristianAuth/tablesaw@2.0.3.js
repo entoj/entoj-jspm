@@ -1,0 +1,1 @@
+module.exports = require("github:ChristianAuth/tablesaw@2.0.3/dist/tablesaw.js");

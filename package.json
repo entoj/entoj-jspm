@@ -1,0 +1,37 @@
+{
+  "name": "entoj-jspm",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": "6.x"
+  },
+  "main": "source/index.js",
+  "scripts": {
+    "coverage": "bash scripts/test --coverage",
+    "coveralls": "bash scripts/coveralls",
+    "lint": "bash scripts/lint",
+    "test": "bash scripts/test"
+  },
+  "dependencies": {
+    "entoj-system": "https://github.com/entoj/entoj-system",
+    "entoj-js": "https://github.com/entoj/entoj-js",
+    "co": "*",
+    "co-fs-extra": "*",
+    "jspm": "*",
+    "babel-core": "*",
+    "babel-preset-es2015": "*"
+  },
+  "devDependencies": {
+    "chai": "*",
+    "coveralls": "*",
+    "git-changelog": "*",
+    "ink-docstrap": "*",
+    "istanbul": "*",
+    "jsdoc": "*",
+    "mocha": "*",
+    "sinon": "*",
+    "eslint": "*",
+    "entoj-test-fixture": "*",
+    "supertest": "*"
+  }
+}

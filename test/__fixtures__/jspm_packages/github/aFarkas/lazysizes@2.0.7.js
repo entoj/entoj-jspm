@@ -1,0 +1,1 @@
+module.exports = require("github:aFarkas/lazysizes@2.0.7/lazysizes.js");

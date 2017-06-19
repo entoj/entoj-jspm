@@ -1,0 +1,1 @@
+module.exports = require("github:imakewebthings/waypoints@4.0.1/lib/noframework.waypoints.js");

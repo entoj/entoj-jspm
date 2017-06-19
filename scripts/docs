@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Prepare pathes
+SELF=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+JSDOC=$SELF/../node_modules/.bin/jsdoc
+CONFIG=$SELF/../.jsdoc.json
+DOCS=$SELF/../docs/api
+SOURCE=$SELF/../source
+TEMPLATE=$SELF/../node_modules/ink-docstrap/template
+JSDOC2MD=$SELF/../node_modules/.bin/jsdoc2md
+MD=$SELF/../task.md
+PARTIALS=$SELF/../docs/jsdoc2md
+HELPERS=$SELF/../docs/jsdoc2md
+
+# Doit
+$JSDOC -c $CONFIG --destination $DOCS --recurse $SOURCE --template $TEMPLATE
+
+#rm $MD
+#$JSDOC2MD --helper $HELPERS/taskParameters.js --partial $PARTIALS/scope.hbs $PARTIALS/augments.hbs $PARTIALS/customTags.hbs  --member-index-format list --separators --files $SOURCE/task/*.js* > $MD

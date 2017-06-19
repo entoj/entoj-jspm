@@ -1,0 +1,6 @@
+/node_modules
+/docs/api
+/coverage
+/test/__fixtures__/temp
+.DS_Store
+/npm-debug.log

@@ -1,0 +1,1 @@
+module.exports = require("github:benmajor/jQuery-Touch-Events@1.0.8/src/jquery.mobile-events.js");

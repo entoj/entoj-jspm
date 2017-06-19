@@ -1,0 +1,4 @@
+verbose: false
+instrumentation:
+    default-excludes: false
+    excludes: ['**/node_modules/**', 'test/**']
