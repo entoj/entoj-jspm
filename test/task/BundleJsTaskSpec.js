@@ -22,8 +22,7 @@ describe(BundleJsTask.className, function()
      */
     taskSpec(BundleJsTask, 'task/BundleJsTask', prepareParameters);
 
-    /**
-     */
+    // Adds necessary parameters to create a testee
     function prepareParameters(parameters)
     {
         return [global.fixtures.cliLogger, global.fixtures.filesRepository,
