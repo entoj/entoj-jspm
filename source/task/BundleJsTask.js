@@ -142,7 +142,7 @@ class BundleJsTask extends Task
                 const bundles = {};
                 for (const group in sourceFiles)
                 {
-                    const filename = pathes.normalizePathSeparators(templateString(params.filenameTemplate, { site: site, group: group }));
+                    const filename = urls.normalizePathSeparators(templateString(params.filenameTemplate, { site: site, group: group }));
                     const groupWork = scope._cliLogger.work('Generating bundle config for <' + site.name + '> / <' + group + '>');
                     const bundle =
                     {
@@ -209,12 +209,20 @@ class BundleJsTask extends Task
             require('vm').runInNewContext(builderConfigSource, context);
 
             // Prepare config
+            const prepareFilePath = (pth) =>
+            {
+                if (!isWin32)
+                {
+                    return pth;
+                }
+                return 'file:///' + urls.normalizePathSeparators(pth);
+            };
             builderConfig.paths =
             {
-                'jspm_packages/*': scope._packagesPath + '/*',
-                'github:*': scope._packagesPath + '/github/*',
-                'npm:*': scope._packagesPath + '/npm/*',
-                'bower:*': scope._packagesPath + '/bower/*'
+                'jspm_packages/*': prepareFilePath(scope._packagesPath) + '/*',
+                'github:*': prepareFilePath(scope._packagesPath) + '/github/*',
+                'npm:*': prepareFilePath(scope._packagesPath) + '/npm/*',
+                'bower:*': prepareFilePath(scope._packagesPath) + '/bower/*'
             };
             const sites = yield scope._sitesRepository.getItems();
             for (const site of sites)
@@ -253,7 +261,7 @@ class BundleJsTask extends Task
             };
 
             // Build bundles
-            const builder = new Builder((isWin32 ? 'file:///' : '') + scope._pathesConfiguration.root, builderConfig);
+            const builder = new Builder(prepareFilePath(scope._pathesConfiguration.root), builderConfig);
             const result = [];
             for (const name in bundles)
             {
