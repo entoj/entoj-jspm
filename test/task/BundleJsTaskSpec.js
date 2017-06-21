@@ -4,6 +4,7 @@
  * Requirements
  */
 const BundleJsTask = require(JSPM_SOURCE + '/task/BundleJsTask.js').BundleJsTask;
+const JspmConfiguration = require(JSPM_SOURCE + '/configuration/JspmConfiguration.js').JspmConfiguration;
 const CliLogger = require('entoj-system').cli.CliLogger;
 const taskSpec = require('entoj-system/test').task.TaskShared;
 const projectFixture = require('entoj-system/test').fixture.project;
@@ -24,7 +25,7 @@ describe(BundleJsTask.className, function()
     function prepareParameters(parameters)
     {
         return [global.fixtures.cliLogger, global.fixtures.filesRepository,
-            global.fixtures.sitesRepository, global.fixtures.pathesConfiguration];
+            global.fixtures.sitesRepository, global.fixtures.pathesConfiguration, new JspmConfiguration(global.fixtures.globalConfiguration)];
     }
 
 

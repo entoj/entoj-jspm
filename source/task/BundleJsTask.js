@@ -7,6 +7,7 @@
 const Task = require('entoj-system').task.Task;
 const FilesRepository = require('entoj-system').model.file.FilesRepository;
 const PathesConfiguration = require('entoj-system').model.configuration.PathesConfiguration;
+const JspmConfiguration = require('../configuration/JspmConfiguration.js').JspmConfiguration;
 const SitesRepository = require('entoj-system').model.site.SitesRepository;
 const ContentType = require('entoj-system').model.ContentType;
 const Site = require('entoj-system').model.site.Site;
@@ -33,9 +34,13 @@ const isWin32 = require('os').platform() == 'win32';
 class BundleJsTask extends Task
 {
     /**
-     *
+     * @param {cli.CliLogger} cliLogger
+     * @param {model.file.FilesRepository} filesRepository
+     * @param {model.site.SitesRepository} sitesRepository
+     * @param {model.configuration.PathesConfiguration} pathesConfiguration
+     * @param {Object} options
      */
-    constructor(cliLogger, filesRepository, sitesRepository, pathesConfiguration, options)
+    constructor(cliLogger, filesRepository, sitesRepository, pathesConfiguration, jspmConfiguration, options)
     {
         super(cliLogger);
 
@@ -43,15 +48,18 @@ class BundleJsTask extends Task
         assertParameter(this, 'filesRepository', filesRepository, true, FilesRepository);
         assertParameter(this, 'sitesRepository', sitesRepository, true, SitesRepository);
         assertParameter(this, 'pathesConfiguration', pathesConfiguration, true, PathesConfiguration);
+        assertParameter(this, 'jspmConfiguration', jspmConfiguration, true, JspmConfiguration);
 
         // Assign options
         const opts = options || {};
         this._filesRepository = filesRepository;
         this._sitesRepository = sitesRepository;
         this._pathesConfiguration = pathesConfiguration;
+        this._jspmConfiguration = jspmConfiguration;
         this._defaultGroup = 'common';
-        this._configPath = execute(this._pathesConfiguration, 'resolve', [opts.configPath || '${entoj}/jspm.js']);
-        this._packagesPath = execute(this._pathesConfiguration, 'resolve', [opts.packagesPath || '${entoj}/jspm_packages']);
+        this._configPath = execute(this._pathesConfiguration, 'resolve', [opts.configPath || jspmConfiguration.configPath]);
+        this._packagesPath = execute(this._pathesConfiguration, 'resolve', [opts.packagesPath || jspmConfiguration.packagesPath]);
+        this._configFile = execute(this._pathesConfiguration, 'resolve', [opts.configFile || jspmConfiguration.configFile]);
     }
 
 
@@ -60,7 +68,7 @@ class BundleJsTask extends Task
      */
     static get injections()
     {
-        return { 'parameters': [CliLogger, FilesRepository, SitesRepository, PathesConfiguration, 'task/BundleJsTask.options'] };
+        return { 'parameters': [CliLogger, FilesRepository, SitesRepository, PathesConfiguration, JspmConfiguration, 'task/BundleJsTask.options'] };
     }
 
 
@@ -70,6 +78,75 @@ class BundleJsTask extends Task
     static get className()
     {
         return 'task/BundleJsTask';
+    }
+
+
+    /**
+     * @type {model.file.FilesRepository}
+     */
+    get filesRepository()
+    {
+        return this._filesRepository;
+    }
+
+
+    /**
+     * @type {model.site.SitesRepository}
+     */
+    get sitesRepository()
+    {
+        return this._sitesRepository;
+    }
+
+
+    /**
+     * @type {model.configuration.PathesConfiguration}
+     */
+    get pathesConfiguration()
+    {
+        return this._pathesConfiguration;
+    }
+
+
+    /**
+     * @type {String}
+     */
+    get defaultGroup()
+    {
+        return this._defaultGroup;
+    }
+
+
+    /**
+     * The base path to the jspm packages folder
+     *
+     * @type {String}
+     */
+    get packagesPath()
+    {
+        return this._packagesPath;
+    }
+
+
+    /**
+     * The path to the jspm config file folder
+     *
+     * @type {String}
+     */
+    get configPath()
+    {
+        return this._configPath;
+    }
+
+
+    /**
+     * The path to the jspm config file
+     *
+     * @type {String}
+     */
+    get configFile()
+    {
+        return this._configFile;
     }
 
 
@@ -102,18 +179,18 @@ class BundleJsTask extends Task
             const params = yield scope.prepareParameters(buildConfiguration, parameters);
 
             // Start
-            const work = scope._cliLogger.section('Generating bundle configuration for <' + params.query + '>');
+            const work = scope.cliLogger.section('Generating bundle configuration for <' + params.query + '>');
 
             // Get Sites
             let sites = [];
             if (params.query !== '*')
             {
-                const site = yield scope._sitesRepository.findBy(Site.ANY, params.query);
+                const site = yield scope.sitesRepository.findBy(Site.ANY, params.query);
                 sites.push(site);
             }
             else
             {
-                sites = yield scope._sitesRepository.getItems();
+                sites = yield scope.sitesRepository.getItems();
             }
 
             // Get bundles
@@ -125,7 +202,7 @@ class BundleJsTask extends Task
                 {
                     return file.contentType === ContentType.JS;
                 };
-                const sourceFiles = yield scope._filesRepository.getBySiteGrouped(site, filter, 'groups.js', scope._defaultGroup);
+                const sourceFiles = yield scope.filesRepository.getBySiteGrouped(site, filter, 'groups.js', scope.defaultGroup);
 
                 // Collect all modules
                 const all = [];
@@ -133,7 +210,7 @@ class BundleJsTask extends Task
                 {
                     for (const file of sourceFiles[group])
                     {
-                        const module = urls.normalizePathSeparators(file.filename.replace(scope._pathesConfiguration.sites + PATH_SEPERATOR, ''));
+                        const module = urls.normalizePathSeparators(file.filename.replace(scope.pathesConfiguration.sites + PATH_SEPERATOR, ''));
                         all.push(module);
                     }
                 }
@@ -143,7 +220,7 @@ class BundleJsTask extends Task
                 for (const group in sourceFiles)
                 {
                     const filename = urls.normalizePathSeparators(templateString(params.filenameTemplate, { site: site, group: group }));
-                    const groupWork = scope._cliLogger.work('Generating bundle config for <' + site.name + '> / <' + group + '>');
+                    const groupWork = scope.cliLogger.work('Generating bundle config for <' + site.name + '> / <' + group + '>');
                     const bundle =
                     {
                         filename : filename,
@@ -156,7 +233,7 @@ class BundleJsTask extends Task
                     // Add include
                     for (const file of sourceFiles[group])
                     {
-                        const module = urls.normalizePathSeparators(file.filename.replace(scope._pathesConfiguration.sites + PATH_SEPERATOR, ''));
+                        const module = urls.normalizePathSeparators(file.filename.replace(scope.pathesConfiguration.sites + PATH_SEPERATOR, ''));
                         bundle.include.push(module);
                     }
 
@@ -166,9 +243,9 @@ class BundleJsTask extends Task
                     // Add jspm when default category
                     if (group === scope._defaultGroup)
                     {
-                        bundle.prepend.push(path.join(scope._packagesPath, '/system-polyfills.js'));
-                        bundle.prepend.push(path.join(scope._packagesPath, '/system.src.js'));
-                        bundle.prepend.push(scope._configPath);
+                        bundle.prepend.push(path.join(scope.packagesPath, '/system-polyfills.js'));
+                        bundle.prepend.push(path.join(scope.packagesPath, '/system.src.js'));
+                        bundle.prepend.push(scope.configFile);
                     }
 
                     // Add bundle
@@ -205,7 +282,7 @@ class BundleJsTask extends Task
                     config: (config) => builderConfig = config
                 }
             };
-            const builderConfigSource = yield fs.readFile(pathes.concat(scope._pathesConfiguration.entoj, 'jspm.js'), { encoding: 'utf8' });
+            const builderConfigSource = yield fs.readFile(scope.configFile, { encoding: 'utf8' });
             require('vm').runInNewContext(builderConfigSource, context);
 
             // Prepare config
@@ -219,12 +296,14 @@ class BundleJsTask extends Task
             };
             builderConfig.paths =
             {
-                'jspm_packages/*': prepareFilePath(scope._packagesPath) + '/*',
-                'github:*': prepareFilePath(scope._packagesPath) + '/github/*',
-                'npm:*': prepareFilePath(scope._packagesPath) + '/npm/*',
-                'bower:*': prepareFilePath(scope._packagesPath) + '/bower/*'
+                'jspm_packages/*': prepareFilePath(scope.packagesPath) + '/*',
+                'github:*': prepareFilePath(scope.packagesPath) + '/github/*',
+                'npm:*': prepareFilePath(scope.packagesPath) + '/npm/*',
+                'bower:*': prepareFilePath(scope.packagesPath) + '/bower/*'
             };
-            const sites = yield scope._sitesRepository.getItems();
+
+            // Add sites
+            const sites = yield scope.sitesRepository.getItems();
             for (const site of sites)
             {
                 builderConfig.paths[site.name.urlify() + '/*'] = 'sites/' + site.name.urlify() + '/*';
@@ -243,8 +322,8 @@ class BundleJsTask extends Task
                     const promise = co(function *()
                     {
                         const sourceFilename = pathes.normalize(load.name.replace('file:///', ''));
-                        const filename = yield scope._pathesConfiguration.shorten(sourceFilename);
-                        const work = scope._cliLogger.work(filename);
+                        const filename = yield scope.pathesConfiguration.shorten(sourceFilename);
+                        const work = scope.cliLogger.work(filename);
                         const result = yield fetch(load);
                         if (loadedFiles.indexOf(load.name) === -1)
                         {
@@ -261,17 +340,17 @@ class BundleJsTask extends Task
             };
 
             // Build bundles
-            const builder = new Builder(prepareFilePath(scope._pathesConfiguration.root), builderConfig);
+            const builder = new Builder(prepareFilePath(scope.pathesConfiguration.root), builderConfig);
             const result = [];
             for (const name in bundles)
             {
-                const section = scope._cliLogger.section('Creating bundle <' + bundles[name].filename + '>');
+                const section = scope.cliLogger.section('Creating bundle <' + bundles[name].filename + '>');
 
                 // Get bundle arithmetic
                 const bundle = bundles[name];
                 let modules = bundle.include.join(' + ');
                 // Remove excludes when not default group
-                if (name !== scope._defaultGroup && bundle.exclude.length)
+                if (name !== scope.defaultGroup && bundle.exclude.length)
                 {
                     modules+= ' - ' + bundle.exclude.join(' - ');
                 }
@@ -288,7 +367,7 @@ class BundleJsTask extends Task
                     const work = scope._cliLogger.work(filename);
                     const fileContent = yield fs.readFile(filename, { encoding: 'utf8' });
                     contents+= fileContent;
-                    scope._cliLogger.end(work, false, 'Prepended ' + filename);
+                    scope.cliLogger.end(work, false, 'Prepended ' + filename);
                 }
 
                 // Bundle
@@ -301,12 +380,12 @@ class BundleJsTask extends Task
                 result.push(file);
 
                 // Done
-                scope._cliLogger.end(section);
+                scope.cliLogger.end(section);
             }
 
             return result;
         })
-        .catch((e) => this.logger.error(e) );
+        .catch((e) => this.logger.error('WTF', e) );
         return promise;
     }
 
@@ -327,7 +406,7 @@ class BundleJsTask extends Task
             co(function *()
             {
                 const siteBundles = yield scope.generateConfiguration(buildConfiguration, parameters);
-                const work = scope._cliLogger.section('Bundling js files');
+                const work = scope.cliLogger.section('Bundling js files');
                 scope._cliLogger.options(scope.prepareParameters(buildConfiguration, parameters));
                 for (const siteBundle of siteBundles)
                 {
@@ -338,7 +417,7 @@ class BundleJsTask extends Task
                     }
                 }
                 resultStream.end();
-                scope._cliLogger.end(work);
+                scope.cliLogger.end(work);
             });
         }
         return resultStream;

@@ -9,6 +9,8 @@ const CliLogger = require('entoj-system').cli.CliLogger;
 const PathesConfiguration = require('entoj-system').model.configuration.PathesConfiguration;
 const assertParameter = require('entoj-system').utils.assert.assertParameter;
 const execute = require('entoj-system').utils.synchronize.execute;
+const JspmConfiguration = require('../../configuration/JspmConfiguration.js').JspmConfiguration;
+
 
 
 /**
@@ -21,18 +23,19 @@ class JsRoute extends Route
     /**
      * @param {cli.CliLogger} cliLogger
      */
-    constructor(cliLogger, pathesConfiguration, options)
+    constructor(cliLogger, pathesConfiguration, jspmConfiguration, options)
     {
         super(cliLogger.createPrefixed('route.sassroute'));
 
         //Check params
         assertParameter(this, 'pathesConfiguration', pathesConfiguration, true, PathesConfiguration);
+        assertParameter(this, 'jspmConfiguration', jspmConfiguration, true, JspmConfiguration);
 
         // Assign options
         const opts = options || {};
         this._pathesConfiguration = pathesConfiguration;
-        this._packagesPath = execute(this._pathesConfiguration, 'resolve', [opts.packagesPath || '${entoj}/jspm_packages']);
-        this._configPath = execute(this._pathesConfiguration, 'resolve', [opts.configPath || '${entoj}']);
+        this._configPath = execute(this._pathesConfiguration, 'resolve', [opts.configPath || jspmConfiguration.configPath]);
+        this._packagesPath = execute(this._pathesConfiguration, 'resolve', [opts.packagesPath || jspmConfiguration.packagesPath]);
     }
 
 
@@ -41,7 +44,7 @@ class JsRoute extends Route
      */
     static get injections()
     {
-        return { 'parameters': [CliLogger, PathesConfiguration, 'server.route/JsRoute.options'] };
+        return { 'parameters': [CliLogger, PathesConfiguration, JspmConfiguration, 'server.route/JsRoute.options'] };
     }
 
 

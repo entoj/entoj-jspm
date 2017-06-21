@@ -32,6 +32,24 @@ Lints all source files
 npm run lint
 ```
 
+# Configuration
+
+## Global configuration
+
+jspm.configPath: ${entoj}/jspm_packages
+jspm.packagesPath: ${entoj}
+jspm.configFile: jspm.js
+jspm.cachePath: ${cache}/jspm
+
+
+## Environment configuration
+
+js.precompile: false
+js.optimize: false
+js.minimize: false
+js.sourceMaps: false
+
+
 ---
 
 ### Licence
