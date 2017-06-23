@@ -33,10 +33,9 @@ class JspmRoute extends Route
 
         // Assign options
         const opts = options || {};
-        this._pathesConfiguration = pathesConfiguration;
-        this._configPath = execute(this._pathesConfiguration, 'resolve', [opts.configPath || jspmConfiguration.configPath]);
-        this._packagesPath = execute(this._pathesConfiguration, 'resolve', [opts.packagesPath || jspmConfiguration.packagesPath]);
-        this._precompilePath = execute(this._pathesConfiguration, 'resolve', [opts.precompilePath || jspmConfiguration.precompilePath]);
+        this._configPath = execute(pathesConfiguration, 'resolve', [opts.configPath || jspmConfiguration.configPath]);
+        this._packagesPath = execute(pathesConfiguration, 'resolve', [opts.packagesPath || jspmConfiguration.packagesPath]);
+        this._precompilePath = execute(pathesConfiguration, 'resolve', [opts.precompilePath || jspmConfiguration.precompilePath]);
     }
 
 
@@ -55,15 +54,6 @@ class JspmRoute extends Route
     static get className()
     {
         return 'server.route/JspmRoute';
-    }
-
-
-    /**
-     * @type {model.configuration.PathesConfiguration}
-     */
-    get pathesConfiguration()
-    {
-        return this._pathesConfiguration;
     }
 
 
