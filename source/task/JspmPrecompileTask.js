@@ -95,6 +95,7 @@ class JspmPrecompileTask extends Task
      */
     processEntity(entity, buildConfiguration, parameters)
     {
+        /* istanbul ignore next */
         if (!entity)
         {
             this.logger.warn(this.className + '::processEntity - No entity given');
