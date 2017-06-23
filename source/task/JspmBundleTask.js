@@ -301,6 +301,11 @@ class JspmBundleTask extends Task
                 'npm:*': prepareFilePath(scope.packagesPath) + '/npm/*',
                 'bower:*': prepareFilePath(scope.packagesPath) + '/bower/*'
             };
+            builderConfig.transpiler = 'babel',
+            builderConfig.babelOptions =
+            {
+                optional: ['runtime']
+            };
 
             // Add sites
             const sites = yield scope.sitesRepository.getItems();
@@ -313,7 +318,7 @@ class JspmBundleTask extends Task
             const loadedFiles = [];
             const bundlerConfig =
             {
-                runtime: false,
+                runtime: 'babel',
                 minify: false,
                 sourceMaps: false,
                 lowResSourceMaps: false,
