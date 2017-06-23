@@ -11,6 +11,7 @@ const JspmPrecompileTask = require('../task/JspmPrecompileTask.js').JspmPrecompi
 const JspmConfiguration = require('../configuration/JspmConfiguration.js').JspmConfiguration;
 const ModelSynchronizer = require('entoj-system').watch.ModelSynchronizer;
 const WriteFilesTask = require('entoj-system').task.WriteFilesTask;
+const PostProcessJsTask = require('entoj-js').task.PostProcessJsTask;
 const PathesConfiguration = require('entoj-system').model.configuration.PathesConfiguration;
 const BuildConfiguration = require('entoj-system').model.configuration.BuildConfiguration;
 const CliLogger = require('entoj-system').cli.CliLogger;
@@ -177,6 +178,7 @@ class JspmCommand extends Command
                 query: parameters && parameters._ && parameters._[0] || '*'
             };
             yield scope.context.di.create(JspmBundleTask, mapping)
+                .pipe(scope.context.di.create(PostProcessJsTask, mapping))
                 .pipe(scope.context.di.create(WriteFilesTask, mapping))
                 .run(buildConfiguration, options);
         });
