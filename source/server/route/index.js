@@ -3,5 +3,5 @@
  */
 module.exports =
 {
-    JsRoute: require('./JsRoute.js').JsRoute
+    JspmRoute: require('./JspmRoute.js').JspmRoute
 };

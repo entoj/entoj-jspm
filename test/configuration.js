@@ -21,4 +21,4 @@ global.chai = chai;
 /**
  * Show unhandled
  */
-//process.on('unhandledRejection', r => console.log(r));
+process.on('unhandledRejection', r => console.log(r));

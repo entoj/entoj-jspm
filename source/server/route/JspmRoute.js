@@ -18,14 +18,14 @@ const JspmConfiguration = require('../../configuration/JspmConfiguration.js').Js
  *
  * @memberOf server.route
  */
-class JsRoute extends Route
+class JspmRoute extends Route
 {
     /**
      * @param {cli.CliLogger} cliLogger
      */
     constructor(cliLogger, pathesConfiguration, jspmConfiguration, options)
     {
-        super(cliLogger.createPrefixed('route.sassroute'));
+        super(cliLogger.createPrefixed('route.jspmroute'));
 
         //Check params
         assertParameter(this, 'pathesConfiguration', pathesConfiguration, true, PathesConfiguration);
@@ -36,6 +36,7 @@ class JsRoute extends Route
         this._pathesConfiguration = pathesConfiguration;
         this._configPath = execute(this._pathesConfiguration, 'resolve', [opts.configPath || jspmConfiguration.configPath]);
         this._packagesPath = execute(this._pathesConfiguration, 'resolve', [opts.packagesPath || jspmConfiguration.packagesPath]);
+        this._precompilePath = execute(this._pathesConfiguration, 'resolve', [opts.precompilePath || jspmConfiguration.precompilePath]);
     }
 
 
@@ -44,7 +45,7 @@ class JsRoute extends Route
      */
     static get injections()
     {
-        return { 'parameters': [CliLogger, PathesConfiguration, JspmConfiguration, 'server.route/JsRoute.options'] };
+        return { 'parameters': [CliLogger, PathesConfiguration, JspmConfiguration, 'server.route/JspmRoute.options'] };
     }
 
 
@@ -53,7 +54,7 @@ class JsRoute extends Route
      */
     static get className()
     {
-        return 'server.route/JsRoute';
+        return 'server.route/JspmRoute';
     }
 
 
@@ -89,6 +90,17 @@ class JsRoute extends Route
 
 
     /**
+     * The base path to the jspm packages directory
+     *
+     * @type {String}
+     */
+    get precompilePath()
+    {
+        return this._precompilePath;
+    }
+
+
+    /**
      * @inheritDocs
      */
     register(express)
@@ -96,8 +108,9 @@ class JsRoute extends Route
         const promise = super.register(express);
         promise.then(() =>
         {
-            this.addStaticFileHandler('/jspm_packages/*', this.packagesPath, ['.js', '.json']);
+            this.addStaticFileHandler('/jspm_packages/*', this.packagesPath, ['.js']);
             this.addStaticFileHandler('/*', this.configPath, ['.js', '.json']);
+            this.addStaticFileHandler('/*', this.precompilePath, ['.js']);
         });
         return promise;
     }
@@ -108,4 +121,4 @@ class JsRoute extends Route
  * Exports
  * @ignore
  */
-module.exports.JsRoute = JsRoute;
+module.exports.JspmRoute = JspmRoute;

@@ -19,17 +19,18 @@ class JspmConfiguration extends Base
      */
     constructor(globalConfiguration)
     {
-        super(context);
+        super();
 
         //Check params
         assertParameter(this, 'globalConfiguration', globalConfiguration, true, GlobalConfiguration);
 
         // Create configuration
         this._configPath = globalConfiguration.get('jspm.configPath', '${entoj}');
-        this._packagesPath = globalConfiguration.get('jspm.packagesPath', '${entoj}/jspm_packages');
         this._configFilename = globalConfiguration.get('jspm.configFilename', 'jspm.js');
-        this._cachePath = globalConfiguration.get('jspm.cachePath', '${cache}/jspm');
         this._configFile = this._configPath + '/' + this._configFilename;
+        this._packagesPath = globalConfiguration.get('jspm.packagesPath', '${entoj}/jspm_packages');
+        this._precompilePath = globalConfiguration.get('jspm.precompilePath', '${cache}/jspm/precompiled');
+        this._bundlePath = globalConfiguration.get('jspm.bundlePath', '${cache}/jspm/bundles');
     }
 
 
@@ -96,13 +97,24 @@ class JspmConfiguration extends Base
 
 
     /**
-     * Path to a cache folder where transpiled file are stored
+     * Path to a folder where precompiled files are stored
      *
      * @type {String}
      */
-    get cachePath()
+    get precompilePath()
     {
-        return this._cachePath;
+        return this._precompilePath;
+    }
+
+
+    /**
+     * Path to a folder where bundles are stored
+     *
+     * @type {String}
+     */
+    get bundlePath()
+    {
+        return this._bundlePath;
     }
 }
 

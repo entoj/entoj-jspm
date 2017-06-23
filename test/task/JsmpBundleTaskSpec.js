@@ -3,7 +3,7 @@
 /**
  * Requirements
  */
-const BundleJsTask = require(JSPM_SOURCE + '/task/BundleJsTask.js').BundleJsTask;
+const JspmBundleTask = require(JSPM_SOURCE + '/task/JspmBundleTask.js').JspmBundleTask;
 const JspmConfiguration = require(JSPM_SOURCE + '/configuration/JspmConfiguration.js').JspmConfiguration;
 const CliLogger = require('entoj-system').cli.CliLogger;
 const taskSpec = require('entoj-system/test').task.TaskShared;
@@ -14,12 +14,12 @@ const co = require('co');
 /**
  * Spec
  */
-describe(BundleJsTask.className, function()
+describe(JspmBundleTask.className, function()
 {
     /**
      * Task Test
      */
-    taskSpec(BundleJsTask, 'task/BundleJsTask', prepareParameters);
+    taskSpec(JspmBundleTask, 'task/JspmBundleTask', prepareParameters);
 
     // Adds necessary parameters to create a testee
     function prepareParameters(parameters)
@@ -69,7 +69,7 @@ describe(BundleJsTask.className, function()
         {
             parameters = prepareParameters(parameters);
         }
-        return new BundleJsTask(...parameters);
+        return new JspmBundleTask(...parameters);
     };
 
 

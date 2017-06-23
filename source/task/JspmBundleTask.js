@@ -31,7 +31,7 @@ const isWin32 = require('os').platform() == 'win32';
 /**
  * @memberOf task
  */
-class BundleJsTask extends Task
+class JspmBundleTask extends Task
 {
     /**
      * @param {cli.CliLogger} cliLogger
@@ -68,7 +68,7 @@ class BundleJsTask extends Task
      */
     static get injections()
     {
-        return { 'parameters': [CliLogger, FilesRepository, SitesRepository, PathesConfiguration, JspmConfiguration, 'task/BundleJsTask.options'] };
+        return { 'parameters': [CliLogger, FilesRepository, SitesRepository, PathesConfiguration, JspmConfiguration, 'task/JspmBundleTask.options'] };
     }
 
 
@@ -77,7 +77,7 @@ class BundleJsTask extends Task
      */
     static get className()
     {
-        return 'task/BundleJsTask';
+        return 'task/JspmBundleTask';
     }
 
 
@@ -322,7 +322,7 @@ class BundleJsTask extends Task
                     const promise = co(function *()
                     {
                         const sourceFilename = pathes.normalize(load.name.replace('file:///', ''));
-                        const filename = yield scope.pathesConfiguration.shorten(sourceFilename);
+                        const filename = yield scope.pathesConfiguration.shorten(sourceFilename, 80);
                         const work = scope.cliLogger.work(filename);
                         const result = yield fetch(load);
                         if (loadedFiles.indexOf(load.name) === -1)
@@ -385,7 +385,7 @@ class BundleJsTask extends Task
 
             return result;
         })
-        .catch((e) => this.logger.error('WTF', e) );
+            .catch((e) => this.logger.error(e));
         return promise;
     }
 
@@ -429,4 +429,4 @@ class BundleJsTask extends Task
  * Exports
  * @ignore
  */
-module.exports.BundleJsTask = BundleJsTask;
+module.exports.JspmBundleTask = JspmBundleTask;

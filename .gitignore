@@ -4,3 +4,4 @@
 /test/__fixtures__/temp
 .DS_Store
 /npm-debug.log
+/test/__fixtures__/cache

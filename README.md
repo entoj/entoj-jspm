@@ -36,10 +36,11 @@ npm run lint
 
 ## Global configuration
 
-jspm.configPath: ${entoj}/jspm_packages
-jspm.packagesPath: ${entoj}
+jspm.configPath: ${entoj}
 jspm.configFile: jspm.js
-jspm.cachePath: ${cache}/jspm
+jspm.packagesPath: ${entoj}/jspm_packages
+jspm.precompilePath: ${cache}/jspm/precompiled
+jspm.bundlePath: ${cache}/jspm/bundles
 
 
 ## Environment configuration
