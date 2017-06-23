@@ -143,4 +143,43 @@ describe(JspmCommand.className, function()
             return promise;
         });
     });
+
+
+    describe('#watch()', function()
+    {
+        it('should return a promise', function()
+        {
+            const testee = createTestee();
+            const promise = testee.watch();
+            expect(promise).to.be.instanceof(Promise);
+            return promise;
+        });
+
+        it('should initially precompile all files', function()
+        {
+            const promise = co(function *()
+            {
+                yield fs.emptyDir(path.join(JSPM_FIXTURES, '/cache'));
+                const testee = createTestee();
+                yield testee.watch();
+                expect(yield fs.exists(path.join(JSPM_FIXTURES, '/cache/jspm/precompiled/base/elements/e-image/js/e-image.js'))).to.be.ok;
+                expect(yield fs.exists(path.join(JSPM_FIXTURES, '/cache/jspm/precompiled/extended/elements/e-image/js/e-image.js'))).to.be.ok;
+                expect(yield fs.exists(path.join(JSPM_FIXTURES, '/cache/jspm/precompiled/base/global/js/application.js'))).to.be.ok;
+            });
+            return promise;
+        });
+
+        it('should allow to pass a query for entities', function()
+        {
+            const promise = co(function *()
+            {
+                yield fs.emptyDir(path.join(JSPM_FIXTURES, '/cache'));
+                const testee = createTestee();
+                yield testee.watch({ _:['base'] });
+                expect(yield fs.exists(path.join(JSPM_FIXTURES, '/cache/jspm/precompiled/base/elements/e-image/js/e-image.js'))).to.be.ok;
+                expect(yield fs.exists(path.join(JSPM_FIXTURES, '/cache/jspm/precompiled/extended/elements/e-image/js/e-image.js'))).to.be.not.ok;
+            });
+            return promise;
+        });
+    });
 });
