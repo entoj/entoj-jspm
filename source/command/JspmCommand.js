@@ -15,8 +15,9 @@ const DecorateTask = require('entoj-system').task.DecorateTask;
 const PostProcessJsTask = require('entoj-js').task.PostProcessJsTask;
 const PathesConfiguration = require('entoj-system').model.configuration.PathesConfiguration;
 const BuildConfiguration = require('entoj-system').model.configuration.BuildConfiguration;
+const ErrorHandler = require('entoj-system').error.ErrorHandler;
 const CliLogger = require('entoj-system').cli.CliLogger;
-const waitForResolved = require('entoj-system').utils.synchronize.waitForResolved;
+const waitForPromise = require('entoj-system').utils.synchronize.waitForPromise;
 const co = require('co');
 const gitRev = require('git-rev-promises');
 
@@ -118,7 +119,7 @@ class JspmCommand extends Command
             yield scope.context.di.create(JspmPrecompileTask, mapping)
                 .pipe(scope.context.di.create(WriteFilesTask, mapping))
                 .run(buildConfiguration, options);
-        });
+        }).catch(ErrorHandler.handler(scope));
         return promise;
     }
 
@@ -149,11 +150,11 @@ class JspmCommand extends Command
                     for (const entity of invalidations.entity.update)
                     {
                         logger.info('Detected update in <' + entity.pathString + '>');
-                        waitForResolved(scope.precompile({ _:[entity.pathString] }));
+                        waitForPromise(scope.precompile({ _:[entity.pathString] }));
                     }
                 }
             });
-        });
+        }).catch(ErrorHandler.handler(scope));
         return promise;
     }
 
@@ -196,7 +197,7 @@ class JspmCommand extends Command
                 .pipe(scope.context.di.create(DecorateTask, mapping))
                 .pipe(scope.context.di.create(WriteFilesTask, mapping))
                 .run(buildConfiguration, options);
-        });
+        }).catch(ErrorHandler.handler(scope));
         return promise;
     }
 
