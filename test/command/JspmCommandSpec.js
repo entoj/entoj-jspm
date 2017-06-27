@@ -17,7 +17,7 @@ const path = require('path');
 describe(JspmCommand.className, function()
 {
     /**
-     * Base Test
+     * Command Test
      */
     commandSpec(JspmCommand, 'command/JspmCommand', prepareParameters);
 
@@ -36,15 +36,17 @@ describe(JspmCommand.className, function()
 
 
     /**
-     * BundleJsTask Test
+     * JspmCommand Test
      */
-    function createTestee()
+    function createTestee(buildConfiguration)
     {
         global.fixtures = projectFixture.createDynamic((config) =>
         {
             config.entities.loader.plugins.push(require('entoj-js').model.loader.documentation.JsPlugin);
             config.pathes.entojTemplate = JSPM_FIXTURES;
             config.pathes.cacheTemplate = JSPM_FIXTURES + '/cache';
+            config.environments.development = buildConfiguration || {};
+            config.logger.muted = true;
             return config;
         });
         return new JspmCommand(global.fixtures.context);
@@ -100,6 +102,32 @@ describe(JspmCommand.className, function()
                 yield testee.bundle({ _:['base'], destination: path.join(JSPM_FIXTURES, '/cache/release') });
                 expect(yield fs.exists(path.join(JSPM_FIXTURES, '/cache/release/base/common.js'))).to.be.ok;
                 expect(yield fs.exists(path.join(JSPM_FIXTURES, '/cache/release/base/core.js'))).to.be.ok;
+            });
+            return promise;
+        });
+
+        it('should allow to add a configurable banner via environment settings', function()
+        {
+            const promise = co(function *()
+            {
+                yield fs.emptyDir(path.join(JSPM_FIXTURES, '/cache'));
+                const testee = createTestee({ js: { banner: 'Banner!' }});
+                yield testee.bundle();
+                const filename = path.join(JSPM_FIXTURES, '/cache/jspm/bundles/base/common.js');
+                expect(yield fs.readFile(filename, { encoding: 'utf8' })).to.contain('/** Banner!');
+            });
+            return promise;
+        });
+
+        it('should allow to post process files via environment settings', function()
+        {
+            const promise = co(function *()
+            {
+                yield fs.emptyDir(path.join(JSPM_FIXTURES, '/cache'));
+                const testee = createTestee({ js: { minify: true }});
+                yield testee.bundle();
+                const filename = path.join(JSPM_FIXTURES, '/cache/jspm/bundles/base/common.js');
+                expect(yield fs.readFile(filename, { encoding: 'utf8' })).to.not.contain('/**');
             });
             return promise;
         });

@@ -47,8 +47,9 @@ jspm.bundlePath: ${cache}/jspm/bundles
 
 js.precompile: false
 js.optimize: false
-js.minimize: false
+js.minify: false
 js.sourceMaps: false
+js.banner: false
 
 
 ---
