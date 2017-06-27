@@ -21,4 +21,5 @@ global.chai = chai;
 /**
  * Show unhandled
  */
+/* eslint no-console: 0 */
 process.on('unhandledRejection', r => console.log(r));
