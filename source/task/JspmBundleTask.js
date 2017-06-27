@@ -5,6 +5,7 @@
  * @ignore
  */
 const Task = require('entoj-system').task.Task;
+const ErrorHandler = require('entoj-system').error.ErrorHandler;
 const FilesRepository = require('entoj-system').model.file.FilesRepository;
 const PathesConfiguration = require('entoj-system').model.configuration.PathesConfiguration;
 const JspmConfiguration = require('../configuration/JspmConfiguration.js').JspmConfiguration;
@@ -259,7 +260,7 @@ class JspmBundleTask extends Task
             // End
             scope._cliLogger.end(work);
             return result;
-        });
+        }).catch(ErrorHandler.handler(scope));
         return promise;
     }
 
@@ -389,8 +390,7 @@ class JspmBundleTask extends Task
             }
 
             return result;
-        })
-            .catch((e) => this.logger.error(e));
+        }).catch(ErrorHandler.handler(scope));
         return promise;
     }
 
@@ -423,7 +423,7 @@ class JspmBundleTask extends Task
                 }
                 resultStream.end();
                 scope.cliLogger.end(work);
-            });
+            }).catch(ErrorHandler.handler(scope));
         }
         return resultStream;
     }
