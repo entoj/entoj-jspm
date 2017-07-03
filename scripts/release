@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Prepare
+export FORCE_COLOR=true
+set -e
+
+# Prepare pathes
+SELF=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+LINT=$SELF/lint
+TEST=$SELF/test
+
+# Go
+echo "Running Linter"
+$LINT
+
+echo "Running Tests"
+$TEST
+
+echo "Tagging release"
+npm version ${1:-minor}
+
+echo "Push to git"
+git push
+
+echo "Publish to npm"
+npm publish

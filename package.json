@@ -1,38 +1,37 @@
 {
-  "name": "entoj-jspm",
-  "version": "0.1.0",
-  "private": true,
-  "engines": {
-    "node": "6.x"
-  },
-  "main": "source/index.js",
-  "scripts": {
-    "coverage": "bash scripts/test --coverage",
-    "coveralls": "bash scripts/coveralls",
-    "lint": "bash scripts/lint",
-    "test": "bash scripts/test"
-  },
-  "dependencies": {
-    "entoj-system": "https://github.com/entoj/entoj-system",
-    "entoj-js": "https://github.com/entoj/entoj-js",
-    "co": "*",
-    "co-fs-extra": "*",
-    "jspm": "*",
-    "babel-core": "*",
-    "babel-preset-es2015": "*",
-    "git-rev-promises": "*"
-  },
-  "devDependencies": {
-    "chai": "*",
-    "coveralls": "*",
-    "git-changelog": "*",
-    "ink-docstrap": "*",
-    "istanbul": "*",
-    "jsdoc": "*",
-    "mocha": "*",
-    "sinon": "*",
-    "eslint": "*",
-    "entoj-test-fixture": "*",
-    "supertest": "*"
-  }
+    "name": "entoj-jspm",
+    "version": "0.1.0",
+    "engines": {
+        "node": "6.x"
+    },
+    "main": "source/index.js",
+    "scripts": {
+        "coverage": "bash scripts/test --coverage",
+        "coveralls": "bash scripts/coveralls",
+        "lint": "bash scripts/lint",
+        "test": "bash scripts/test"
+    },
+    "dependencies": {
+        "babel-core": "^6.25.0",
+        "babel-preset-es2015": "^6.24.1",
+        "co": "^4.6.0",
+        "co-fs-extra": "^1.2.1",
+        "entoj-js": "^0.1.0",
+        "entoj-system": "^0.1.0",
+        "git-rev-promises": "^1.0.8",
+        "jspm": "^0.16.53"
+    },
+    "devDependencies": {
+        "chai": "^4.0.2",
+        "coveralls": "^2.13.1",
+        "entoj-test-fixture": "^0.9.0",
+        "eslint": "^4.1.1",
+        "git-changelog": "^1.1.2",
+        "ink-docstrap": "^1.3.0",
+        "istanbul": "^0.4.5",
+        "jsdoc": "^3.4.3",
+        "mocha": "^3.4.2",
+        "sinon": "^2.3.6",
+        "supertest": "^3.0.0"
+    }
 }
