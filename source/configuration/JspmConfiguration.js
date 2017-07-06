@@ -29,6 +29,7 @@ class JspmConfiguration extends Base
         this._configFilename = globalConfiguration.get('jspm.configFilename', 'jspm.js');
         this._configFile = this._configPath + '/' + this._configFilename;
         this._packagesPath = globalConfiguration.get('jspm.packagesPath', '${entoj}/jspm_packages');
+        this._sourcesPath = globalConfiguration.get('jspm.sourcesPath', '${sites}');
         this._precompilePath = globalConfiguration.get('jspm.precompilePath', '${cache}/jspm/precompiled');
         this._bundlePath = globalConfiguration.get('jspm.bundlePath', '${cache}/jspm/bundles');
     }
@@ -93,6 +94,17 @@ class JspmConfiguration extends Base
     get packagesPath()
     {
         return this._packagesPath;
+    }
+
+
+    /**
+     * Path to the project source folder
+     *
+     * @type {String}
+     */
+    get sourcesPath()
+    {
+        return this._sourcesPath;
     }
 
 
