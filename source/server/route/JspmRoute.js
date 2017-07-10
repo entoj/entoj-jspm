@@ -7,10 +7,10 @@
 const Route = require('entoj-system').server.route.Route;
 const CliLogger = require('entoj-system').cli.CliLogger;
 const PathesConfiguration = require('entoj-system').model.configuration.PathesConfiguration;
+const BuildConfiguration = require('entoj-system').model.configuration.BuildConfiguration;
 const assertParameter = require('entoj-system').utils.assert.assertParameter;
 const execute = require('entoj-system').utils.synchronize.execute;
 const JspmConfiguration = require('../../configuration/JspmConfiguration.js').JspmConfiguration;
-
 
 
 /**
@@ -23,18 +23,21 @@ class JspmRoute extends Route
     /**
      * @param {cli.CliLogger} cliLogger
      */
-    constructor(cliLogger, pathesConfiguration, jspmConfiguration, options)
+    constructor(cliLogger, pathesConfiguration, jspmConfiguration, buildConfiguration, options)
     {
         super(cliLogger.createPrefixed('route.jspmroute'));
 
         //Check params
         assertParameter(this, 'pathesConfiguration', pathesConfiguration, true, PathesConfiguration);
         assertParameter(this, 'jspmConfiguration', jspmConfiguration, true, JspmConfiguration);
+        assertParameter(this, 'buildConfiguration', buildConfiguration, true, BuildConfiguration);
 
         // Assign options
         const opts = options || {};
+        this._buildConfiguration = buildConfiguration;
         this._configPath = execute(pathesConfiguration, 'resolve', [opts.configPath || jspmConfiguration.configPath]);
         this._packagesPath = execute(pathesConfiguration, 'resolve', [opts.packagesPath || jspmConfiguration.packagesPath]);
+        this._sourcesPath = execute(pathesConfiguration, 'resolve', [opts.sourcesPath || jspmConfiguration.sourcesPath]);
         this._precompilePath = execute(pathesConfiguration, 'resolve', [opts.precompilePath || jspmConfiguration.precompilePath]);
     }
 
@@ -44,7 +47,7 @@ class JspmRoute extends Route
      */
     static get injections()
     {
-        return { 'parameters': [CliLogger, PathesConfiguration, JspmConfiguration, 'server.route/JspmRoute.options'] };
+        return { 'parameters': [CliLogger, PathesConfiguration, JspmConfiguration, BuildConfiguration, 'server.route/JspmRoute.options'] };
     }
 
 
@@ -58,6 +61,15 @@ class JspmRoute extends Route
 
 
     /**
+     * @type {model.configuration.BuildConfiguration}
+     */
+    get buildConfiguration()
+    {
+        return this._buildConfiguration;
+    }
+
+
+    /**
      * The base path to the jspm packages directory
      *
      * @type {String}
@@ -65,6 +77,17 @@ class JspmRoute extends Route
     get packagesPath()
     {
         return this._packagesPath;
+    }
+
+
+    /**
+     * The base path to the js sources
+     *
+     * @type {String}
+     */
+    get sourcesPath()
+    {
+        return this._sourcesPath;
     }
 
 
@@ -99,8 +122,15 @@ class JspmRoute extends Route
         promise.then(() =>
         {
             this.addStaticFileHandler('/jspm_packages/*', this.packagesPath, ['.js']);
-            this.addStaticFileHandler('/*', this.configPath, ['.js', '.json']);
-            this.addStaticFileHandler('/*', this.precompilePath, ['.js']);
+            this.addStaticFileHandler('*', this.configPath, ['.js', '.json']);
+            if (this.buildConfiguration.get('js.precompile', false))
+            {
+                this.addStaticFileHandler('*', this.precompilePath, ['.js']);
+            }
+            else
+            {
+                this.addStaticFileHandler('*', this.sourcesPath, ['.js']);
+            }
         });
         return promise;
     }
