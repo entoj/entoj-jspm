@@ -17,7 +17,7 @@ echo "Running Tests"
 $TEST
 
 echo "Tagging release"
-npm version ${1:-minor}
+npm version ${1:-patch}
 
 echo "Push to git"
 git push
