@@ -24,3 +24,6 @@ git push
 
 echo "Publish to npm"
 npm publish
+
+echo "Push tags to git"
+git push --tags
