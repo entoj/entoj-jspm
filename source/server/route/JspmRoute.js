@@ -139,12 +139,12 @@ class JspmRoute extends Route
             {
                 this.addStaticFileHandler('*', this.precompilePath, ['.js']);
             }
-            else if (this.buildConfiguration.get('js.bundle', false))
-            {
-                this.addStaticFileHandler('*', this.bundlePath, ['.js']);
-            }
             else
             {
+                if (this.buildConfiguration.get('js.bundle', false))
+                {
+                    this.addStaticFileHandler('*', this.bundlePath, ['.js']);
+                }
                 this.addStaticFileHandler('*', this.sourcesPath, ['.js']);
             }
         });
