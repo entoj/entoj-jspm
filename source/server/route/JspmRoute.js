@@ -39,6 +39,7 @@ class JspmRoute extends Route
         this._packagesPath = execute(pathesConfiguration, 'resolve', [opts.packagesPath || jspmConfiguration.packagesPath]);
         this._sourcesPath = execute(pathesConfiguration, 'resolve', [opts.sourcesPath || jspmConfiguration.sourcesPath]);
         this._precompilePath = execute(pathesConfiguration, 'resolve', [opts.precompilePath || jspmConfiguration.precompilePath]);
+        this._bundlePath = execute(pathesConfiguration, 'resolve', [opts.bundlePath || jspmConfiguration.bundlePath]);
     }
 
 
@@ -103,13 +104,24 @@ class JspmRoute extends Route
 
 
     /**
-     * The base path to the jspm packages directory
+     * The base path to precompiled files
      *
      * @type {String}
      */
     get precompilePath()
     {
         return this._precompilePath;
+    }
+
+
+    /**
+     * The base path to bundled files
+     *
+     * @type {String}
+     */
+    get bundlePath()
+    {
+        return this._bundlePath;
     }
 
 
@@ -126,6 +138,10 @@ class JspmRoute extends Route
             if (this.buildConfiguration.get('js.precompile', false))
             {
                 this.addStaticFileHandler('*', this.precompilePath, ['.js']);
+            }
+            else if (this.buildConfiguration.get('js.bundle', false))
+            {
+                this.addStaticFileHandler('*', this.bundlePath, ['.js']);
             }
             else
             {
