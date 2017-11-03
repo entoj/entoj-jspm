@@ -186,7 +186,7 @@ class JspmBundleTask extends Task
             let sites = [];
             if (params.query !== '*')
             {
-                const site = yield scope.sitesRepository.findBy(Site.ANY, params.query);
+                const site = yield scope.sitesRepository.findBy({ '*': params.query });
                 sites.push(site);
             }
             else

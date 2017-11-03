@@ -2,7 +2,7 @@
   "name": "entoj-jspm",
   "version": "0.1.7",
   "engines": {
-    "node": "6.x"
+    "node": ">=6.x"
   },
   "main": "source/index.js",
   "scripts": {
@@ -16,21 +16,21 @@
     "babel-preset-es2015": "^6.24.1",
     "co": "^4.6.0",
     "co-fs-extra": "^1.2.1",
-    "entoj-js": "^0.1.3",
-    "entoj-system": "^0.1.11",
+    "entoj-js": "^0.1.4",
+    "entoj-system": "^0.1.17",
     "git-rev-promises": "^1.0.8",
     "jspm": "^0.16.53"
   },
   "devDependencies": {
-    "chai": "^4.0.2",
-    "coveralls": "^2.13.1",
-    "entoj-test-fixture": "^0.9.0",
-    "eslint": "^4.1.1",
+    "chai": "^4.1.2",
+    "coveralls": "^2.13.3",
+    "entoj-test-fixture": "^0.9.5",
+    "eslint": "^4.10.0",
     "git-changelog": "^1.1.2",
     "ink-docstrap": "^1.3.0",
     "istanbul": "^0.4.5",
-    "jsdoc": "^3.4.3",
-    "mocha": "^3.4.2",
+    "jsdoc": "^3.5.5",
+    "mocha": "^3.5.3",
     "sinon": "^2.3.6",
     "supertest": "^3.0.0"
   }
