@@ -11,7 +11,6 @@ const PathesConfiguration = require('entoj-system').model.configuration.PathesCo
 const JspmConfiguration = require('../configuration/JspmConfiguration.js').JspmConfiguration;
 const SitesRepository = require('entoj-system').model.site.SitesRepository;
 const ContentType = require('entoj-system').model.ContentType;
-const Site = require('entoj-system').model.site.Site;
 const CliLogger = require('entoj-system').cli.CliLogger;
 const assertParameter = require('entoj-system').utils.assert.assertParameter;
 const pathes = require('entoj-system').utils.pathes;
