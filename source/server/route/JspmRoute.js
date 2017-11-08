@@ -128,24 +128,27 @@ class JspmRoute extends Route
     /**
      * @inheritDocs
      */
-    register(express)
+    register(server)
     {
-        const promise = super.register(express);
+        const promise = super.register(server);
         promise.then(() =>
         {
-            this.addStaticFileHandler('/jspm_packages/*', this.packagesPath, ['.js']);
-            this.addStaticFileHandler('*', this.configPath, ['.js', '.json']);
-            if (this.buildConfiguration.get('js.precompile', false))
+            if (server)
             {
-                this.addStaticFileHandler('*', this.precompilePath, ['.js']);
-            }
-            else
-            {
-                if (this.buildConfiguration.get('js.bundle', false))
+                this.addStaticFileHandler('/jspm_packages/*', this.packagesPath, ['.js']);
+                this.addStaticFileHandler('*', this.configPath, ['.js', '.json']);
+                if (this.buildConfiguration.get('js.precompile', false))
                 {
-                    this.addStaticFileHandler('*', this.bundlePath, ['.js']);
+                    this.addStaticFileHandler('*', this.precompilePath, ['.js']);
                 }
-                this.addStaticFileHandler('*', this.sourcesPath, ['.js']);
+                else
+                {
+                    if (this.buildConfiguration.get('js.bundle', false))
+                    {
+                        this.addStaticFileHandler('*', this.bundlePath, ['.js']);
+                    }
+                    this.addStaticFileHandler('*', this.sourcesPath, ['.js']);
+                }
             }
         });
         return promise;
