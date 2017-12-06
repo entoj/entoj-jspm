@@ -26,7 +26,7 @@ describe(JspmRoute.className, function()
     {
         const buildConfiguration = new BuildConfiguration();
         const pathesConfiguration = new PathesConfiguration();
-        const jspmConfiguration = new JspmConfiguration(new GlobalConfiguration());
+        const jspmConfiguration = new JspmConfiguration(new GlobalConfiguration(), buildConfiguration);
         const cliLogger = new CliLogger('', { muted: true });
         return [cliLogger, pathesConfiguration, jspmConfiguration, buildConfiguration];
     });

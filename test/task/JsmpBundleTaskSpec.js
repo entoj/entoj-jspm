@@ -25,7 +25,7 @@ describe(JspmBundleTask.className, function()
     function prepareParameters(parameters)
     {
         return [global.fixtures.cliLogger, global.fixtures.filesRepository,
-            global.fixtures.sitesRepository, global.fixtures.pathesConfiguration, new JspmConfiguration(global.fixtures.globalConfiguration)];
+            global.fixtures.sitesRepository, global.fixtures.pathesConfiguration, new JspmConfiguration(global.fixtures.globalConfiguration, global.fixtures.buildConfiguration)];
     }
 
 
@@ -120,7 +120,7 @@ describe(JspmBundleTask.className, function()
             const promise = co(function *()
             {
                 const testee = createTestee();
-                const bundles = yield testee.generateConfiguration(undefined, { filenameTemplate: '${group.urlify()}.js'});
+                const bundles = yield testee.generateConfiguration(undefined, { bundleTemplate: '${group.urlify()}.js'});
                 const baseBundle = bundles[0];
                 const extendedBundle = bundles[1];
                 expect(baseBundle.common.filename).to.be.equal('common.js');

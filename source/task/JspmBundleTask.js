@@ -82,6 +82,15 @@ class JspmBundleTask extends Task
 
 
     /**
+     * @type {configuration.JspmConfiguration}
+     */
+    get jspmConfiguration()
+    {
+        return this._jspmConfiguration;
+    }
+
+
+    /**
      * @type {model.file.FilesRepository}
      */
     get filesRepository()
@@ -159,7 +168,10 @@ class JspmBundleTask extends Task
             .then((params) =>
             {
                 params.query = params.query || '*';
-                params.filenameTemplate = params.filenameTemplate || '${site.name.urlify()}/${group.urlify()}.js';
+                if (!params.bundleTemplate)
+                {
+                    params.bundleTemplate = this.jspmConfiguration.bundleTemplate;
+                }
                 return params;
             });
         return promise;
@@ -219,7 +231,7 @@ class JspmBundleTask extends Task
                 const bundles = {};
                 for (const group in sourceFiles)
                 {
-                    const filename = urls.normalizePathSeparators(templateString(params.filenameTemplate, { site: site, group: group }));
+                    const filename = urls.normalizePathSeparators(templateString(params.bundleTemplate, { site: site, group: group }));
                     const groupWork = scope.cliLogger.work('Generating bundle config for <' + site.name + '> / <' + group + '>');
                     const bundle =
                     {
@@ -411,7 +423,7 @@ class JspmBundleTask extends Task
             {
                 const siteBundles = yield scope.generateConfiguration(buildConfiguration, parameters);
                 const work = scope.cliLogger.section('Bundling js files');
-                scope._cliLogger.options(scope.prepareParameters(buildConfiguration, parameters));
+                scope._cliLogger.options(yield scope.prepareParameters(buildConfiguration, parameters));
                 for (const siteBundle of siteBundles)
                 {
                     const siteFiles = yield scope.compileBundles(siteBundle, buildConfiguration, parameters);

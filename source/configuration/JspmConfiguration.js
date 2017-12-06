@@ -5,6 +5,7 @@
  * @ignore
  */
 const Base = require('entoj-system').Base;
+const BuildConfiguration = require('entoj-system').model.configuration.BuildConfiguration;
 const GlobalConfiguration = require('entoj-system').model.configuration.GlobalConfiguration;
 const assertParameter = require('entoj-system').utils.assert.assertParameter;
 
@@ -16,13 +17,15 @@ class JspmConfiguration extends Base
 {
     /**
      * @param  {model.configuration.GlobalConfiguration} globalConfiguration
+     * @param  {model.configuration.BuildConfiguration} buildConfiguration
      */
-    constructor(globalConfiguration)
+    constructor(globalConfiguration, buildConfiguration)
     {
         super();
 
         //Check params
         assertParameter(this, 'globalConfiguration', globalConfiguration, true, GlobalConfiguration);
+        assertParameter(this, 'buildConfiguration', buildConfiguration, true, BuildConfiguration);
 
         // Create configuration
         this._configPath = globalConfiguration.get('jspm.configPath', '${entoj}');
@@ -31,7 +34,8 @@ class JspmConfiguration extends Base
         this._packagesPath = globalConfiguration.get('jspm.packagesPath', '${entoj}/jspm_packages');
         this._sourcesPath = globalConfiguration.get('jspm.sourcesPath', '${sites}');
         this._precompilePath = globalConfiguration.get('jspm.precompilePath', '${cache}/jspm/precompiled');
-        this._bundlePath = globalConfiguration.get('jspm.bundlePath', '${cache}/jspm/bundles');
+        this._bundlePath = buildConfiguration.get('js.bundlePath', globalConfiguration.get('jspm.bundlePath', '${cache}/jspm/bundles'));
+        this._bundleTemplate = buildConfiguration.get('js.bundleTemplate', globalConfiguration.get('jspm.bundleTemplate', '${site.name.urlify()}/${group.urlify()}.js'));
     }
 
 
@@ -40,7 +44,7 @@ class JspmConfiguration extends Base
      */
     static get injections()
     {
-        return { 'parameters': [GlobalConfiguration] };
+        return { 'parameters': [GlobalConfiguration, BuildConfiguration] };
     }
 
 
@@ -127,6 +131,17 @@ class JspmConfiguration extends Base
     get bundlePath()
     {
         return this._bundlePath;
+    }
+
+
+    /**
+     * Template for bundle filenames
+     *
+     * @type {String}
+     */
+    get bundleTemplate()
+    {
+        return this._bundleTemplate;
     }
 }
 

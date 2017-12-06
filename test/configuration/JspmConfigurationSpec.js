@@ -4,6 +4,7 @@
  * Requirements
  */
 const JspmConfiguration = require(JSPM_SOURCE + '/configuration/JspmConfiguration.js').JspmConfiguration;
+const BuildConfiguration = require('entoj-system').model.configuration.BuildConfiguration;
 const GlobalConfiguration = require('entoj-system').model.configuration.GlobalConfiguration;
 const baseSpec = require('entoj-system/test').BaseShared;
 
@@ -18,7 +19,7 @@ describe(JspmConfiguration.className, function()
      */
     baseSpec(JspmConfiguration, 'configuration/JspmConfiguration', function(parameters)
     {
-        return [new GlobalConfiguration()];
+        return [new GlobalConfiguration(), new BuildConfiguration()];
     });
 
 
@@ -29,7 +30,7 @@ describe(JspmConfiguration.className, function()
     // create a initialized testee instance
     const createTestee = function(config)
     {
-        return new JspmConfiguration(new GlobalConfiguration(config));
+        return new JspmConfiguration(new GlobalConfiguration(config), new BuildConfiguration());
     };
 
     // Simple properties
