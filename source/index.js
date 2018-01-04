@@ -6,6 +6,15 @@ function register(configuration, options)
     // Commands
     configuration.commands.add(require('./command/index.js').JspmCommand);
 
+    // Entities
+    configuration.mappings.add(require('entoj-system').model.entity.EntitiesLoader,
+        {
+            '!plugins':
+            [
+                require('entoj-js').model.loader.documentation.JsPlugin
+            ]
+        });
+
     // Linter
     configuration.commands.add(require('entoj-system').command.LintCommand,
         {
