@@ -103,14 +103,27 @@ class JspmPrecompileTask extends EntitiesTask
                     presets: [require('babel-preset-es2015')],
                     babelrc: false
                 };
-                const contents = babel.transform(sourceFile.contents.toString(), options).code;
-                const resultFile = new VinylFile(
-                    {
-                        path: filename,
-                        contents: new Buffer(contents)
-                    });
-                scope.cliLogger.end(work);
-                result.push(resultFile);
+                let contents = false;
+                try
+                {
+                    contents = babel.transform(sourceFile.contents.toString(), options).code;
+                }
+                catch (error)
+                {
+                    contents = false;
+                    scope.cliLogger.end(work, 'Failed transforming js file');
+                    scope.cliLogger.error(error);
+                }
+                if (contents)
+                {
+                    const resultFile = new VinylFile(
+                        {
+                            path: filename,
+                            contents: new Buffer(contents)
+                        });
+                    scope.cliLogger.end(work);
+                    result.push(resultFile);
+                }
             }
             return result;
         }).catch(ErrorHandler.handler(scope));
