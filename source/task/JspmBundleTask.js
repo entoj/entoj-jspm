@@ -310,8 +310,7 @@ class JspmBundleTask extends Task
             {
                 'jspm_packages/*': prepareFilePath(scope.packagesPath) + '/*',
                 'github:*': prepareFilePath(scope.packagesPath) + '/github/*',
-                'npm:*': prepareFilePath(scope.packagesPath) + '/npm/*',
-                'bower:*': prepareFilePath(scope.packagesPath) + '/bower/*'
+                'npm:*': prepareFilePath(scope.packagesPath) + '/npm/*'
             };
             builderConfig.transpiler = 'babel',
             builderConfig.babelOptions =
