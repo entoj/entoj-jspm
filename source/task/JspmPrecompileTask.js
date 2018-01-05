@@ -11,6 +11,7 @@ const ContentType = require('entoj-system').model.ContentType;
 const CliLogger = require('entoj-system').cli.CliLogger;
 const ErrorHandler = require('entoj-system').error.ErrorHandler;
 const assertParameter = require('entoj-system').utils.assert.assertParameter;
+const activateEnvironment = require('entoj-system').utils.string.activateEnvironment;
 const VinylFile = require('vinyl');
 const co = require('co');
 const babel = require('babel-core');
@@ -106,7 +107,7 @@ class JspmPrecompileTask extends EntitiesTask
                 let contents = false;
                 try
                 {
-                    contents = babel.transform(sourceFile.contents.toString(), options).code;
+                    contents = babel.transform(activateEnvironment(sourceFile.contents.toString(), buildConfiguration.environment), options).code;
                 }
                 catch (error)
                 {
