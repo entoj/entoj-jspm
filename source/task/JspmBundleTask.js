@@ -16,6 +16,7 @@ const assertParameter = require('entoj-system').utils.assert.assertParameter;
 const pathes = require('entoj-system').utils.pathes;
 const urls = require('entoj-system').utils.urls;
 const execute = require('entoj-system').utils.synchronize.execute;
+const activateEnvironment = require('entoj-system').utils.string.activateEnvironment;
 const Builder = require('systemjs-builder');
 const through2 = require('through2');
 const VinylFile = require('vinyl');
@@ -253,7 +254,7 @@ class JspmBundleTask extends Task
                     bundle.exclude = difference(all, bundle.include);
 
                     // Add jspm when default category
-                    if (group === scope._defaultGroup)
+                    if (group === scope.defaultGroup)
                     {
                         bundle.prepend.push(path.join(scope.packagesPath, '/system-polyfills.js'));
                         bundle.prepend.push(path.join(scope.packagesPath, '/system.src.js'));
@@ -262,14 +263,14 @@ class JspmBundleTask extends Task
 
                     // Add bundle
                     bundles[group] = bundle;
-                    scope._cliLogger.end(groupWork);
+                    scope.cliLogger.end(groupWork);
                 }
 
                 result.push(bundles);
             }
 
             // End
-            scope._cliLogger.end(work);
+            scope.cliLogger.end(work);
             return result;
         }).catch(ErrorHandler.handler(scope));
         return promise;
@@ -340,12 +341,13 @@ class JspmBundleTask extends Task
                         const sourceFilename = pathes.normalize(load.name.replace('file:///', ''));
                         const filename = yield scope.pathesConfiguration.shorten(sourceFilename, 80);
                         const work = scope.cliLogger.work(filename);
-                        const result = yield fetch(load);
+                        let result = yield fetch(load);
+                        result = activateEnvironment(result, buildConfiguration.environment);
                         if (loadedFiles.indexOf(load.name) === -1)
                         {
                             const stats = fs.statSync(sourceFilename);
                             const size = stats['size'] / 1024;
-                            scope._cliLogger.end(work, false, 'Added ' + filename + ' <' + size.toFixed(1) + 'kb>');
+                            scope.cliLogger.end(work, false, 'Added ' + filename + ' <' + size.toFixed(1) + 'kb>');
                             loadedFiles.push(load.name);
                         }
 
@@ -422,7 +424,7 @@ class JspmBundleTask extends Task
             {
                 const siteBundles = yield scope.generateConfiguration(buildConfiguration, parameters);
                 const work = scope.cliLogger.section('Bundling js files');
-                scope._cliLogger.options(yield scope.prepareParameters(buildConfiguration, parameters));
+                scope.cliLogger.options(yield scope.prepareParameters(buildConfiguration, parameters));
                 for (const siteBundle of siteBundles)
                 {
                     const siteFiles = yield scope.compileBundles(siteBundle, buildConfiguration, parameters);
