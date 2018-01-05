@@ -342,7 +342,10 @@ class JspmBundleTask extends Task
                         const filename = yield scope.pathesConfiguration.shorten(sourceFilename, 80);
                         const work = scope.cliLogger.work(filename);
                         let result = yield fetch(load);
-                        result = activateEnvironment(result, buildConfiguration.environment);
+                        if (buildConfiguration)
+                        {
+                            result = activateEnvironment(result, buildConfiguration.environment);
+                        }
                         if (loadedFiles.indexOf(load.name) === -1)
                         {
                             const stats = fs.statSync(sourceFilename);
