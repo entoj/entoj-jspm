@@ -107,7 +107,12 @@ class JspmPrecompileTask extends EntitiesTask
                 let contents = false;
                 try
                 {
-                    contents = babel.transform(activateEnvironment(sourceFile.contents.toString(), buildConfiguration.environment), options).code;
+                    let source = sourceFile.contents.toString();
+                    if (buildConfiguration)
+                    {
+                        source = activateEnvironment(source, buildConfiguration.environment);
+                    }
+                    contents = babel.transform(source, options).code;
                 }
                 catch (error)
                 {
