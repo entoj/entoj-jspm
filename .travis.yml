@@ -14,5 +14,13 @@ matrix:
       dist: trusty
       sudo: false
       node_js: "7"
+    - os: linux
+      dist: trusty
+      sudo: false
+      node_js: "8"
+    - os: linux
+      dist: trusty
+      sudo: false
+      node_js: "9"
 after_success:
   - npm run coveralls
