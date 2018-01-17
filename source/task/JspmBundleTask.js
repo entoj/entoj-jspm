@@ -307,12 +307,11 @@ class JspmBundleTask extends Task
                 }
                 return 'file:///' + urls.normalizePathSeparators(pth);
             };
-            builderConfig.paths =
+            for (const key in builderConfig.paths)
             {
-                'jspm_packages/*': prepareFilePath(scope.packagesPath) + '/*',
-                'github:*': prepareFilePath(scope.packagesPath) + '/github/*',
-                'npm:*': prepareFilePath(scope.packagesPath) + '/npm/*'
-            };
+                builderConfig.paths[key] = builderConfig.paths[key].replace('jspm_packages', prepareFilePath(scope.packagesPath));
+            }
+            builderConfig.paths['jspm_packages/*'] = prepareFilePath(scope.packagesPath) + '/*';
             builderConfig.transpiler = 'babel',
             builderConfig.babelOptions =
             {
