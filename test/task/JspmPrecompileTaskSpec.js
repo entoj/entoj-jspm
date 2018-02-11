@@ -9,6 +9,7 @@ const taskSpec = require('entoj-system/test').task.TaskShared;
 const projectFixture = require('entoj-system/test').fixture.project;
 const co = require('co');
 const sinon = require('sinon');
+const path = require('path');
 
 
 /**
@@ -68,7 +69,7 @@ describe(JspmPrecompileTask.className, function()
                 const testee = createTestee();
                 const files = yield testee.processEntity(global.fixtures.entityTeaser, global.fixtures.buildConfiguration);
                 expect(files).to.have.length(1);
-                expect(files[0].path).to.be.equal('base/modules/m-teaser/js/m-teaser.js');
+                expect(files[0].path).to.be.equal('base' + path.sep + 'modules' + path.sep + 'm-teaser' + path.sep + 'js' + path.sep + 'm-teaser.js');
             });
             return promise;
         });
