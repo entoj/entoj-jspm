@@ -19,7 +19,8 @@
     "entoj-js": "^0.2.3",
     "entoj-system": "^0.2.16",
     "git-rev-promises": "^1.0.8",
-    "jspm": "^0.16.53"
+    "jspm": "^0.16.53",
+    "lodash.difference": "^4.5.0"
   },
   "devDependencies": {
     "chai": "^4.1.2",
