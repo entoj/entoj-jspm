@@ -15,6 +15,19 @@ function register(configuration, options)
             ]
         });
 
+    // Nunjucks filter
+    configuration.mappings.add(require('entoj-system').nunjucks.Environment,
+        {
+            '!filters':
+            [
+                configuration.clean(
+                    {
+                        type: require('./nunjucks/index.js').filter.JsUrlFilter
+                    })
+            ]
+        }
+    );
+
     // Linter
     configuration.commands.add(require('entoj-system').command.LintCommand,
         {

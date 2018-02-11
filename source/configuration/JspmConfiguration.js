@@ -31,11 +31,14 @@ class JspmConfiguration extends Base
         this._configPath = globalConfiguration.get('jspm.configPath', '${entoj}');
         this._configFilename = globalConfiguration.get('jspm.configFilename', 'jspm.js');
         this._configFile = this._configPath + '/' + this._configFilename;
+        this._defaultGroup = buildConfiguration.get('jspm.defaultGroup', globalConfiguration.get('jspm.defaultGroup', 'common'));
+        this._runtimeUrl = globalConfiguration.get('jspm.runtimeUrl', '/jspm_packages/system.js');
         this._packagesPath = globalConfiguration.get('jspm.packagesPath', '${entoj}/jspm_packages');
         this._sourcesPath = globalConfiguration.get('jspm.sourcesPath', '${sites}');
         this._precompilePath = globalConfiguration.get('jspm.precompilePath', '${cache}/jspm/precompiled');
         this._bundlePath = buildConfiguration.get('js.bundlePath', globalConfiguration.get('jspm.bundlePath', '${cache}/jspm/bundles'));
         this._bundleTemplate = buildConfiguration.get('js.bundleTemplate', globalConfiguration.get('jspm.bundleTemplate', '${site.name.urlify()}/${group.urlify()}.js'));
+        this._bundleUrlTemplate = buildConfiguration.get('js.bundleUrlTemplate', globalConfiguration.get('jspm.bundleUrlTemplate', '/${site.name.urlify()}/${group.urlify()}.js'));
     }
 
 
@@ -91,6 +94,18 @@ class JspmConfiguration extends Base
 
 
     /**
+     * The name of the default group used
+     * to name generated files
+     *
+     * @type {String}
+     */
+    get defaultGroup()
+    {
+        return this._defaultGroup;
+    }
+
+
+    /**
      * Path to the jspm packages folder
      *
      * @type {String}
@@ -142,6 +157,28 @@ class JspmConfiguration extends Base
     get bundleTemplate()
     {
         return this._bundleTemplate;
+    }
+
+
+    /**
+     * Url template for a bundle url
+     *
+     * @type {String}
+     */
+    get bundleUrlTemplate()
+    {
+        return this._bundleUrlTemplate;
+    }
+
+
+    /**
+     * Url to system js runtime source file
+     *
+     * @type {String}
+     */
+    get runtimeUrl()
+    {
+        return this._runtimeUrl;
     }
 }
 
