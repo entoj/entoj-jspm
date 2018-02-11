@@ -84,34 +84,42 @@ class JsUrlFilter extends Filter
         const scope = this;
         return function(value, group)
         {
-            let url = '';
             const globals = scope.getGlobals(this);
             const data =
             {
-                type: typeof value == 'string' ? value : 'bundle',
-                site: value instanceof Site ? value : globals.location.site,
+                type: typeof value == 'string' 
+                    ? value 
+                    : 'bundle',
+                site: value instanceof Site 
+                    ? value 
+                    : globals.location.site,
                 group: group || scope.moduleConfiguration.defaultGroup,
                 baseUrl: scope.baseUrl
             };
             switch (data.type)
             {
                 case 'bundle':
-                    url = templateString(scope.moduleConfiguration.bundleUrlTemplate, data);
+                    data.path = templateString(scope.moduleConfiguration.bundleUrlTemplate, data);
                     if (data.baseUrl)
                     {
-                        url = urls.concat(data.baseUrl, url);
+                        data.path = urls.concat(data.baseUrl, data.path);
                     }
                     break;
 
                 case 'runtime':
-                    url = scope.moduleConfiguration.runtimeUrl;
+                    data.path = scope.moduleConfiguration.runtimeUrl;
                     break;
 
                 case 'configuration':
-                    url = '/' + scope.moduleConfiguration.configFilename;
+                    data.path = '/' + scope.moduleConfiguration.configFilename;
+                    break;
+
+                default:
+                    data.path = value;
+                    data.type = 'link';
                     break;
             }
-            return scope.applyCallbacks(url, arguments, data);
+            return scope.applyCallbacks(data.path, arguments, data);
         };
     }
 }
