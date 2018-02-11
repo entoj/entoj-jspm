@@ -10,6 +10,7 @@ const FilesRepository = require('entoj-system').model.file.FilesRepository;
 const PathesConfiguration = require('entoj-system').model.configuration.PathesConfiguration;
 const JspmConfiguration = require('../configuration/JspmConfiguration.js').JspmConfiguration;
 const SitesRepository = require('entoj-system').model.site.SitesRepository;
+const EntitiesRepository = require('entoj-system').model.entity.EntitiesRepository;
 const ContentType = require('entoj-system').model.ContentType;
 const CliLogger = require('entoj-system').cli.CliLogger;
 const assertParameter = require('entoj-system').utils.assert.assertParameter;
@@ -41,13 +42,14 @@ class JspmBundleTask extends Task
      * @param {model.configuration.PathesConfiguration} pathesConfiguration
      * @param {Object} options
      */
-    constructor(cliLogger, filesRepository, sitesRepository, pathesConfiguration, jspmConfiguration, options)
+    constructor(cliLogger, filesRepository, sitesRepository, entitiesRepository, pathesConfiguration, jspmConfiguration, options)
     {
         super(cliLogger);
 
         //Check params
         assertParameter(this, 'filesRepository', filesRepository, true, FilesRepository);
         assertParameter(this, 'sitesRepository', sitesRepository, true, SitesRepository);
+        assertParameter(this, 'entitiesRepository', entitiesRepository, true, EntitiesRepository);
         assertParameter(this, 'pathesConfiguration', pathesConfiguration, true, PathesConfiguration);
         assertParameter(this, 'jspmConfiguration', jspmConfiguration, true, JspmConfiguration);
 
@@ -55,6 +57,7 @@ class JspmBundleTask extends Task
         const opts = options || {};
         this._filesRepository = filesRepository;
         this._sitesRepository = sitesRepository;
+        this._entitiesRepository = entitiesRepository;
         this._pathesConfiguration = pathesConfiguration;
         this._jspmConfiguration = jspmConfiguration;
         this._defaultGroup = 'common';
@@ -65,16 +68,16 @@ class JspmBundleTask extends Task
 
 
     /**
-     * @inheritDocs
+     * @inheritDoc
      */
     static get injections()
     {
-        return { 'parameters': [CliLogger, FilesRepository, SitesRepository, PathesConfiguration, JspmConfiguration, 'task/JspmBundleTask.options'] };
+        return { 'parameters': [CliLogger, FilesRepository, SitesRepository, EntitiesRepository, PathesConfiguration, JspmConfiguration, 'task/JspmBundleTask.options'] };
     }
 
 
     /**
-     * @inheritDocs
+     * @inheritDoc
      */
     static get className()
     {
@@ -106,6 +109,15 @@ class JspmBundleTask extends Task
     get sitesRepository()
     {
         return this._sitesRepository;
+    }
+
+
+    /**
+     * @type {model.entity.EntitiesRepository}
+     */
+    get entitiesRepository()
+    {
+        return this._entitiesRepository;
     }
 
 
@@ -161,7 +173,7 @@ class JspmBundleTask extends Task
 
 
     /**
-     * @inheritDocs
+     * @inheritDoc
      */
     prepareParameters(buildConfiguration, parameters)
     {
@@ -175,6 +187,108 @@ class JspmBundleTask extends Task
                 }
                 return params;
             });
+        return promise;
+    }
+
+
+    /**
+     * @protected
+     * @returns {Promise<Array>}
+     */
+    generateConfigurationForEntities(site, entities, buildConfiguration, parameters)
+    {
+        const scope = this;
+        const promise = co(function *()
+        {
+            // Prepare
+            const params = yield scope.prepareParameters(buildConfiguration, parameters);
+
+            // Start
+            const work = scope.cliLogger.section('Generating bundle configuration for <' + params.query + '>');
+
+            // Get all sites
+            const sites = [];
+            let currentSite = site;
+            while(currentSite)
+            {
+                sites.unshift(currentSite);
+                currentSite = currentSite.extends;
+            }
+
+            // Get scss files for each entity and site
+            const sourceFiles = {};
+            for (const entity of entities)
+            {
+                const group = entity.properties.getByPath('groups.js', scope.defaultGroup);
+                sourceFiles[group] = sourceFiles[group] || [];
+                for (const s of sites)
+                {
+                    const files = entity.files.filter((file) =>
+                    {
+                        const add = file.contentType === ContentType.JS &&
+                            file.site.isEqualTo(s);
+                        return add;
+                    });
+                    if (files)
+                    {
+                        sourceFiles[group].push(...files);
+                    }
+                }
+            }
+
+            // Collect all modules
+            const all = [];
+            for (const group in sourceFiles)
+            {
+                for (const file of sourceFiles[group])
+                {
+                    const module = urls.normalizePathSeparators(file.filename.replace(scope.pathesConfiguration.sites + PATH_SEPERATOR, ''));
+                    all.push(module);
+                }
+            }
+
+            // Create bundles
+            const bundles = {};
+            for (const group in sourceFiles)
+            {
+                const filename = urls.normalizePathSeparators(templateString(params.bundleTemplate, { site: site, group: group }));
+                const groupWork = scope.cliLogger.work('Generating bundle config for <' + site.name + '> / <' + group + '>');
+                const bundle =
+                {
+                    filename : filename,
+                    prepend: [],
+                    append: [],
+                    include: [],
+                    exclude: []
+                };
+
+                // Add include
+                for (const file of sourceFiles[group])
+                {
+                    const module = urls.normalizePathSeparators(file.filename.replace(scope.pathesConfiguration.sites + PATH_SEPERATOR, ''));
+                    bundle.include.push(module);
+                }
+
+                // Generate exclude
+                bundle.exclude = difference(all, bundle.include);
+
+                // Add jspm when default category
+                if (group === scope.defaultGroup)
+                {
+                    bundle.prepend.push(path.join(scope.packagesPath, '/system-polyfills.js'));
+                    bundle.prepend.push(path.join(scope.packagesPath, '/system.src.js'));
+                    bundle.prepend.push(scope.configFile);
+                }
+
+                // Add bundle
+                bundles[group] = bundle;
+                scope.cliLogger.end(groupWork);
+            }
+
+            // End
+            scope.cliLogger.end(work);
+            return bundles;
+        }).catch(ErrorHandler.handler(scope));
         return promise;
     }
 
@@ -210,62 +324,22 @@ class JspmBundleTask extends Task
             const result = [];
             for (const site of sites)
             {
-                // Get js sources
-                const filter = function(file)
+                let entities = [];
+                if (params.entities)
                 {
-                    return file.contentType === ContentType.JS;
-                };
-                const sourceFiles = yield scope.filesRepository.getBySiteGrouped(site, filter, 'groups.js', scope.defaultGroup);
-
-                // Collect all modules
-                const all = [];
-                for (const group in sourceFiles)
-                {
-                    for (const file of sourceFiles[group])
+                    for (const entity of params.entities)
                     {
-                        const module = urls.normalizePathSeparators(file.filename.replace(scope.pathesConfiguration.sites + PATH_SEPERATOR, ''));
-                        all.push(module);
+                        if (entity.usedBy.indexOf(site) > -1 || entity.site.isEqualTo(site))
+                        {
+                            entities.push(entity);
+                        }
                     }
                 }
-
-                // Create bundles
-                const bundles = {};
-                for (const group in sourceFiles)
+                else
                 {
-                    const filename = urls.normalizePathSeparators(templateString(params.bundleTemplate, { site: site, group: group }));
-                    const groupWork = scope.cliLogger.work('Generating bundle config for <' + site.name + '> / <' + group + '>');
-                    const bundle =
-                    {
-                        filename : filename,
-                        prepend: [],
-                        append: [],
-                        include: [],
-                        exclude: []
-                    };
-
-                    // Add include
-                    for (const file of sourceFiles[group])
-                    {
-                        const module = urls.normalizePathSeparators(file.filename.replace(scope.pathesConfiguration.sites + PATH_SEPERATOR, ''));
-                        bundle.include.push(module);
-                    }
-
-                    // Generate exclude
-                    bundle.exclude = difference(all, bundle.include);
-
-                    // Add jspm when default category
-                    if (group === scope.defaultGroup)
-                    {
-                        bundle.prepend.push(path.join(scope.packagesPath, '/system-polyfills.js'));
-                        bundle.prepend.push(path.join(scope.packagesPath, '/system.src.js'));
-                        bundle.prepend.push(scope.configFile);
-                    }
-
-                    // Add bundle
-                    bundles[group] = bundle;
-                    scope.cliLogger.end(groupWork);
+                    entities = yield scope.entitiesRepository.getBySite(site);
                 }
-
+                const bundles = yield scope.generateConfigurationForEntities(site, entities, buildConfiguration, params);
                 result.push(bundles);
             }
 

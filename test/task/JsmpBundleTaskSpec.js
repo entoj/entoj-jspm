@@ -25,7 +25,7 @@ describe(JspmBundleTask.className, function()
     function prepareParameters(parameters)
     {
         return [global.fixtures.cliLogger, global.fixtures.filesRepository,
-            global.fixtures.sitesRepository, global.fixtures.pathesConfiguration, new JspmConfiguration(global.fixtures.globalConfiguration, global.fixtures.buildConfiguration)];
+            global.fixtures.sitesRepository, global.fixtures.entitiesRepository, global.fixtures.pathesConfiguration, new JspmConfiguration(global.fixtures.globalConfiguration, global.fixtures.buildConfiguration)];
     }
 
 
@@ -191,6 +191,24 @@ describe(JspmBundleTask.className, function()
             });
             return promise;
         });
+
+        it('should generate allow to specify entities for bundles', function()
+        {
+            const promise = co(function *()
+            {
+                const testee = createTestee();
+                const site = yield global.fixtures.sitesRepository.findBy({ '*': 'base' });
+                const entities =
+                [
+                    yield global.fixtures.entitiesRepository.getById('e-image'),
+                    yield global.fixtures.entitiesRepository.getById('e-cta')
+                ];
+                const bundles = yield testee.generateConfigurationForEntities(site, entities, undefined);
+                expect(bundles.common.include).to.have.length(1);
+                expect(bundles.common.include).to.contain('base/elements/e-image/js/e-image.js');
+            });
+            return promise;
+        });
     });
 
 
@@ -239,6 +257,27 @@ describe(JspmBundleTask.className, function()
                 expect(contents).to.contain('base.element.e-image/Component');
                 expect(contents).to.contain('base.modulegroup.g-teaserlist/Component');
                 expect(contents).to.not.contain('base.module.m-teaser/Component');
+            });
+            return promise;
+        });
+    });
+
+    describe('#stream()', function()
+    {
+        it('should generate only the needed files for a bundle', function()
+        {
+            const promise = co(function *()
+            {
+                const testee = createTestee();
+                const entities =
+                [
+                    yield global.fixtures.entitiesRepository.getById('e-image'),
+                    yield global.fixtures.entitiesRepository.getById('e-cta')
+                ];
+                const bundles = yield taskSpec.readStream(testee.stream(undefined, undefined, { query: 'base', entities: entities }));
+                const contents = bundles[0].contents.toString();
+                expect(contents).to.contain('base.element.e-image/Component');
+                expect(contents).to.not.contain('base.modulegroup.g-teaserlist/Component');
             });
             return promise;
         });
