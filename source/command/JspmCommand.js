@@ -88,6 +88,34 @@ class JspmCommand extends Command
                             description: 'Define a base folder where bundles are written to'
                         }
                     ]
+                },
+                {
+                    name: 'precompile',
+                    description: 'Precompiles all js files to es5 compatible versions',
+                    options:
+                    [
+                        {
+                            name: 'query',
+                            type: 'inline',
+                            optional: true,
+                            defaultValue: '*',
+                            description: 'Query for entities to use e.g. base/elements'
+                        }
+                    ]
+                },
+                {
+                    name: 'watch',
+                    description: 'Precompiles all js files to es5 compatible versions and watches for file changes',
+                    options:
+                    [
+                        {
+                            name: 'query',
+                            type: 'inline',
+                            optional: true,
+                            defaultValue: '*',
+                            description: 'Query for entities to use e.g. base/elements'
+                        }
+                    ]
                 }
             ]
         };
