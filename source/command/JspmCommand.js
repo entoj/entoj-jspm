@@ -172,7 +172,8 @@ class JspmCommand extends Command
             /* istanbul ignore next */
             modelSynchronizer.signals.invalidated.add((synchronizer, invalidations) =>
             {
-                if (invalidations.entity.update &&
+                if (invalidations.entity &&
+                    invalidations.entity.update &&
                     invalidations.extensions.indexOf('.js') > -1)
                 {
                     for (const entity of invalidations.entity.update)

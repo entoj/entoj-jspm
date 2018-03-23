@@ -101,7 +101,34 @@ class JspmPrecompileTask extends EntitiesTask
                 const work = scope.cliLogger.work('Transpiling <' + filename + '>');
                 const options =
                 {
-                    presets: [require('babel-preset-es2015')],
+                    plugins:
+                    [
+                        __dirname + '/../../node_modules/babel-plugin-transform-async-to-generator',
+                        [
+                            require('babel-plugin-transform-runtime'),
+                            {
+                                'helpers': false,
+                                'polyfill': false,
+                                'regenerator': false
+                            }
+                        ]
+                    ],
+                    presets:
+                    [
+                        [__dirname + '/../../node_modules/babel-preset-env',
+                            {
+                                modules: 'systemjs',
+                                useBuiltIns: 'usage',
+                                targets:
+                                {
+                                    browsers:
+                                    [
+                                        'last 2 Chrome versions'
+                                    ]
+                                }
+                            }
+                        ]
+                    ],
                     babelrc: false
                 };
                 let contents = false;
