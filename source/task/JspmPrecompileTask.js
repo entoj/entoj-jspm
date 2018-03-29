@@ -103,7 +103,7 @@ class JspmPrecompileTask extends EntitiesTask
                 {
                     plugins:
                     [
-                        __dirname + '/../../node_modules/babel-plugin-transform-async-to-generator',
+                        require('babel-plugin-transform-async-to-generator'),
                         [
                             require('babel-plugin-transform-runtime'),
                             {
@@ -115,7 +115,7 @@ class JspmPrecompileTask extends EntitiesTask
                     ],
                     presets:
                     [
-                        [__dirname + '/../../node_modules/babel-preset-env',
+                        [require('babel-preset-env'),
                             {
                                 modules: 'systemjs',
                                 useBuiltIns: 'usage',
